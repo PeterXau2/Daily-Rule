@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0F14">
+  <title>Daily Discipline</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ==========================================================
+   DAILY DISCIPLINE DASHBOARD - style.css
+
+   1. Design tokens (colors, sizes)  <- change the look here
+   2. Base and layout
+   3. Navigation
+   4. Reusable components (cards, buttons, inputs, checkboxes...)
+   5. Page-specific pieces
+   6. Focus mode
+   7. Responsive rules and motion
+   ========================================================== */
+
+
+/* ---------- 1. DESIGN TOKENS ---------- */
+:root {
+  --bg: #0B0F14;
+  --card: #111820;
+  --card-soft: #17212C;
+  --sidebar-bg: #0D131A;
+
+  --primary: #0A4D9B;
+  --primary-light: #5B9BE6;     /* readable blue for text/links on dark */
+  --green: #0FA958;
+  --amber: #E0A93B;
+  --red: #E5534B;
+
+  --text: #FFFFFF;
+  --muted: #94A3B8;
+
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.16);
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px rgba(0, 0, 0, 0.22);
+
+  --sidebar-width: 244px;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+
+/* ---------- 2. BASE AND LAYOUT ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+body.no-scroll { overflow: hidden; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--primary-light); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+:focus-visible { outline: 2px solid var(--primary-light); outline-offset: 2px; }
+
+h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+h2 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+
+.muted { color: var(--muted); }
+.small { font-size: 0.875rem; }
+
+.app { min-height: 100vh; }
+.main { min-width: 0; padding: 0 16px 104px; }
+.content { max-width: 1100px; margin: 0 auto; outline: none; }
+
+.page-head { padding: 20px 0 20px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: end; justify-content: space-between; }
+.page-head p { margin-top: 4px; }
+
+.grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+.grid-auto { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+.stack { display: grid; gap: 16px; align-content: start; }
+
+
+/* ---------- 3. NAVIGATION ---------- */
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.01em; }
+.brand-mark {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: var(--primary); display: grid; place-items: center;
+}
+.brand-mark .icon { width: 18px; height: 18px; }
+
+/* Sidebar is hidden on mobile and shown on desktop (see section 7) */
+.sidebar {
+  display: none;
+  position: fixed; inset: 0 auto 0 0;
+  width: var(--sidebar-width);
+  padding: 24px 16px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--line);
+  flex-direction: column; gap: 28px;
+}
+.side-nav { display: grid; gap: 2px; flex: 1; align-content: start; }
+.nav-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px;
+  color: var(--muted); font-weight: 500; text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.nav-link:hover { background: rgba(255,255,255,.04); color: var(--text); text-decoration: none; }
+.nav-link.is-active { background: rgba(10, 77, 155, .35); color: var(--text); }
+
+.mobile-top {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; margin-bottom: 4px;
+  background: rgba(11, 15, 20, .88);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+
+.bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: flex; justify-content: space-between;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  background: rgba(13, 19, 26, .94);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+.bnav-link {
+  flex: 1; min-width: 0; min-height: 48px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  font-size: 0.625rem; font-weight: 500; color: var(--muted); text-decoration: none;
+}
+.bnav-link .icon { width: 22px; height: 22px; }
+.bnav-link:hover { text-decoration: none; }
+.bnav-link.is-active { color: var(--primary-light); }
+
+
+/* ---------- 4. REUSABLE COMPONENTS ---------- */
+
+/* Icons */
+.icon {
+  width: 20px; height: 20px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-head .muted { font-size: 0.875rem; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 18px;
+  border-radius: 12px; border: 1px solid var(--line-strong);
+  background: var(--card-soft); font-weight: 600;
+  transition: background .15s, border-color .15s, transform .1s;
+}
+.btn:hover { background: #1d2a38; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--primary); border-color: transparent; }
+.btn-primary:hover { background: #0c5bb5; }
+.btn-danger { color: #ff8a83; border-color: rgba(229, 83, 75, .45); background: transparent; }
+.btn-danger:hover { background: rgba(229, 83, 75, .12); }
+.btn-block { width: 100%; }
+.btn-sm { min-height: 38px; padding: 0 14px; font-size: .875rem; }
+.btn-lg { min-height: 52px; padding: 0 26px; font-size: 1.05rem; }
+.btn-icon { width: 44px; padding: 0; }
+
+/* Form fields */
+.field { display: grid; gap: 6px; }
+.field label { font-size: 0.875rem; color: var(--muted); font-weight: 500; }
+.input {
+  width: 100%; min-height: 46px;
+  padding: 10px 14px;
+  background: var(--sidebar-bg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;   /* 16px stops iPhone zooming into fields */
+  transition: border-color .15s, box-shadow .15s;
+}
+.input:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(91, 155, 230, .2); }
+textarea.input { min-height: 112px; resize: vertical; line-height: 1.5; }
+.form-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.form-grid .wide { grid-column: 1 / -1; }
+
+/* Checkbox rows. The real checkbox is hidden; .box is what you see. */
+.check {
+  position: relative;
+  display: flex; align-items: flex-start; gap: 12px;
+  min-height: 48px; padding: 12px 6px;
+  border-radius: 10px; cursor: pointer;
+}
+.check:hover { background: rgba(255,255,255,.03); }
+.check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.box {
+  flex: none; width: 22px; height: 22px; margin-top: 1px;
+  display: grid; place-items: center;
+  border-radius: 7px; border: 1.5px solid var(--line-strong);
+  transition: background .15s, border-color .15s;
+}
+.box .icon { width: 14px; height: 14px; stroke-width: 3; stroke: #fff; opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s; }
+.check input:checked + .box { background: var(--green); border-color: var(--green); }
+.check input:checked + .box .icon { opacity: 1; transform: scale(1); }
+.check input:checked ~ .check-text { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(148,163,184,.5); }
+.check input:focus-visible + .box { outline: 2px solid var(--primary-light); outline-offset: 2px; }
+.check-text small { display: block; color: var(--muted); font-size: .8125rem; text-decoration: none; }
+.check-list > .check + .check { border-top: 1px solid var(--line); border-radius: 0; }
+
+/* Progress bars */
+.bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.07); overflow: hidden; }
+.bar span { display: block; height: 100%; border-radius: 999px; background: var(--green); transition: width .4s ease; }
+.bar-lg { height: 10px; }
+.row-bar + .row-bar { margin-top: 14px; }
+.row-bar-head { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: .9375rem; }
+
+/* Segmented buttons (Focused / Limited / Distracted, YES / NO, focus presets) */
+.segmented { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg-btn {
+  flex: 1; min-height: 44px; padding: 0 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 12px; border: 1px solid var(--line-strong);
+  background: transparent; font-weight: 600; color: var(--muted);
+  transition: background .15s, color .15s, border-color .15s;
+}
+.seg-btn:hover { color: var(--text); }
+.seg-btn.is-active { background: rgba(10, 77, 155, .4); border-color: var(--primary-light); color: var(--text); }
+.seg-btn.is-yes.is-active { background: rgba(15, 169, 88, .22); border-color: var(--green); }
+.seg-btn.is-no.is-active { background: rgba(229, 83, 75, .2); border-color: var(--red); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; flex: none; }
+.dot-green { color: var(--green); } .dot-amber { color: var(--amber); } .dot-red { color: var(--red); }
+
+/* Banner messages */
+.banner { padding: 12px 16px; border-radius: 12px; font-weight: 500; border: 1px solid; }
+.banner.ok { background: rgba(15,169,88,.1); border-color: rgba(15,169,88,.4); color: #7fe0ab; }
+.banner.warn { background: rgba(224,169,59,.1); border-color: rgba(224,169,59,.45); color: #f0c872; }
+.banner.danger { background: rgba(229,83,75,.1); border-color: rgba(229,83,75,.5); color: #ff9d97; }
+
+/* Warning bar when data cannot be saved */
+.notice {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  max-width: 1100px; margin: 12px auto 0; padding: 12px 16px;
+  border: 1px solid rgba(229, 83, 75, .5); background: rgba(229, 83, 75, .1);
+  border-radius: 12px; color: #ffb1ab; font-size: .9375rem;
+}
+.notice[hidden] { display: none; }
+
+/* Small stepper (- 3 +) */
+.stepper { display: flex; align-items: center; gap: 12px; }
+.stepper b { min-width: 2ch; text-align: center; font-size: 1.25rem; }
+
+.empty { color: var(--muted); padding: 8px 0; }
+
+
+/* ---------- 5. PAGE-SPECIFIC PIECES ---------- */
+
+/* Dashboard: progress ring */
+.progress-flex { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.ring { position: relative; width: 148px; height: 148px; flex: none; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: rgba(255,255,255,.07); stroke-width: 10; }
+.ring-fill { fill: none; stroke: var(--green); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 339.3; }
+.ring-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring-center b { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.ring-center span { font-size: .8125rem; color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(3, auto); gap: 8px 28px; }
+.stat b { display: flex; align-items: center; gap: 6px; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+.stat span { font-size: .8125rem; color: var(--muted); }
+.stat .icon { color: #ff9a3c; width: 22px; height: 22px; }
+
+/* Quote card */
+.quote { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; min-height: 4.1em; }
+.quote.swap { animation: fade .5s ease; }
+.card-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+/* Streak rows */
+.streak-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; }
+.streak-row + .streak-row { border-top: 1px solid var(--line); }
+.streak-row b { font-weight: 600; display: block; }
+.streak-row small { color: var(--muted); font-size: .8125rem; }
+.streak-val { display: flex; align-items: center; gap: 6px; font-size: 1.25rem; font-weight: 700; white-space: nowrap; }
+.streak-val .icon { color: #ff9a3c; }
+.streak-val small { font-weight: 500; margin-left: 4px; }
+
+/* Bar charts (week view, last 14 days) */
+.chart { display: flex; align-items: stretch; gap: 6px; height: 150px; }
+.chart.short { height: 110px; }
+.col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.col-track { flex: 1; display: flex; align-items: flex-end; background: rgba(255,255,255,.04); border-radius: 8px; overflow: hidden; }
+.col-track i { display: block; width: 100%; background: var(--primary); border-radius: 6px 6px 0 0; transition: height .4s ease; }
+.col.is-today .col-track i { background: var(--green); }
+.col span { text-align: center; font-size: .75rem; color: var(--muted); }
+
+/* Habit tracker */
+.habit-row {
+  display: grid; align-items: center; gap: 8px;
+  grid-template-columns: minmax(150px, 1.6fr) repeat(7, minmax(36px, 1fr)) 52px;
+  padding: 8px 0;
+}
+.habit-row + .habit-row { border-top: 1px solid var(--line); }
+.habit-head { color: var(--muted); font-size: .8125rem; padding-top: 0; }
+.habit-head .hh { text-align: center; }
+.habit-head .hh.is-today { color: var(--text); font-weight: 600; }
+.habit-name { font-weight: 500; display: flex; justify-content: space-between; gap: 8px; }
+.habit-name .count-m { display: none; color: var(--muted); font-size: .875rem; font-style: normal; }
+.habit-count { text-align: right; color: var(--muted); font-size: .875rem; }
+.habit-cell {
+  min-height: 40px; border-radius: 10px; border: 1px solid var(--line-strong);
+  background: transparent; display: grid; place-items: center;
+  transition: background .15s, border-color .15s;
+}
+.habit-cell .icon { width: 18px; height: 18px; stroke-width: 3; stroke: #fff; }
+.habit-cell .dlabel { display: none; font-size: .6875rem; color: var(--muted); }
+.habit-cell.is-today { border-color: var(--primary-light); }
+.habit-cell.is-done { background: var(--green); border-color: var(--green); }
+.habit-cell:disabled { opacity: .3; cursor: default; }
+
+/* Day planner */
+.plan-row { display: flex; align-items: center; gap: 8px; }
+.plan-row .check { flex: 1; min-width: 0; }
+.plan-prio { display: flex; align-items: center; gap: 10px; }
+.plan-prio .check { padding: 0; min-height: 46px; flex: none; }
+.add-row { display: flex; gap: 10px; margin-top: 14px; }
+
+/* Journal: older entries */
+details.entry { border-top: 1px solid var(--line); padding: 12px 0; }
+details.entry summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+details.entry summary::-webkit-details-marker { display: none; }
+details.entry dl { margin-top: 10px; display: grid; gap: 10px; }
+details.entry dt { color: var(--muted); font-size: .8125rem; }
+details.entry dd { white-space: pre-wrap; }
+
+/* Progress page */
+.kpis { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kpi { background: var(--card-soft); border-radius: 12px; padding: 14px 16px; }
+.kpi b { display: block; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+.kpi span { color: var(--muted); font-size: .8125rem; }
+.pos { color: #7fe0ab; } .neg { color: #ff9d97; }
+
+/* Settings */
+.settings-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+code { background: var(--card-soft); padding: 2px 6px; border-radius: 6px; font-size: .875em; }
+
+
+/* ---------- 6. FOCUS MODE ---------- */
+.focus {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at 50% 0%, #0f2038 0%, var(--bg) 60%);
+  overflow-y: auto;
+}
+.focus[hidden] { display: none; }   /* make the hidden attribute win */
+.focus-inner { width: 100%; max-width: 560px; text-align: center; display: grid; gap: 22px; padding: 24px 0; }
+.focus-close { position: absolute; top: 16px; right: 16px; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--line-strong); background: transparent; display: grid; place-items: center; }
+.focus-close:hover { background: rgba(255,255,255,.06); }
+.focus-quote { font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; }
+.focus-task { text-align: left; }
+.focus-time { font-size: clamp(4rem, 18vw, 7rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.focus-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+
+/* ---------- 7. RESPONSIVE RULES AND MOTION ---------- */
+
+/* Phones: keep the 7-day habit rows readable by putting the habit name above the buttons */
+@media (max-width: 719px) {
+  .habit-head { display: none; }
+  .habit-row { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; padding: 14px 0; }
+  .habit-name { grid-column: 1 / -1; }
+  .habit-name .count-m { display: inline; }
+  .habit-count { display: none; }
+  .habit-cell { min-height: 54px; align-content: center; gap: 2px; }
+  .habit-cell .dlabel { display: block; }
+  .habit-cell.is-done .dlabel { color: #fff; }
+  .form-grid { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 16px; }
+  .stats { gap: 8px 20px; }
+}
+
+/* Desktop and large tablets: sidebar, two columns */
+@media (min-width: 900px) {
+  .sidebar { display: flex; }
+  .main { margin-left: var(--sidebar-width); padding: 16px 48px 64px; }
+  .mobile-top, .bottom-nav { display: none; }
+  .page-head { padding-top: 32px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .card { padding: 24px; }
+}
+
+/* Page-load motion (only when you switch pages) */
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ring { from { stroke-dashoffset: 339.3; } }
+.content.enter > * { animation: rise .35s ease both; }
+.content.enter .ring-fill { animation: ring .9s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+</style>
+</head>
+<body>
+
+  <!-- ICON SPRITE
+       Every icon in the app lives here once. script.js uses them with:
+       <svg><use href="#i-home"/></svg>
+       To add an icon: add another <symbol id="i-yourname"> below. -->
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-routine" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.2 1.2L6.8 5M3.5 12l1.2 1.2L6.8 11M3.5 18l1.2 1.2L6.8 17"/></symbol>
+    <symbol id="i-trading" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+    <symbol id="i-habits" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-journal" viewBox="0 0 24 24"><path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2z"/><path d="M5 18a2 2 0 0 1 2-2h12"/><path d="M9 8h6"/></symbol>
+    <symbol id="i-planner" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="M9 15l2 2 4-4"/></symbol>
+    <symbol id="i-progress" viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M3 6h11M18 6h3M3 12h6M13 12h8M3 18h13M20 18h1"/><circle cx="16" cy="6" r="2"/><circle cx="11" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c.6 3.2 5 5.2 5 10a5 5 0 0 1-10 0c0-2 1-3.4 2.2-4.4.2 1.8 1 2.8 2 3 .4-3-.6-5.4.8-8.6z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></symbol>
+  </svg>
+
+  <div class="app">
+
+    <!-- DESKTOP SIDEBAR (hidden on mobile). Links are built by script.js from the VIEWS list. -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark"><svg class="icon"><use href="#i-target"/></svg></span>
+        <span>Daily Discipline</span>
+      </div>
+      <nav id="sideNav" class="side-nav" aria-label="Main"></nav>
+      <button class="btn btn-primary btn-block" data-action="openFocus" type="button">
+        <svg class="icon"><use href="#i-target"/></svg> Focus mode
+      </button>
+    </aside>
+
+    <div class="main">
+      <!-- MOBILE TOP BAR -->
+      <header class="mobile-top">
+        <div class="brand">
+          <span class="brand-mark"><svg class="icon"><use href="#i-target"/></svg></span>
+          <span>Daily Discipline</span>
+        </div>
+        <button class="btn btn-primary btn-sm" data-action="openFocus" type="button">Focus</button>
+      </header>
+
+      <!-- Shown only if the page cannot save your data -->
+      <div id="storageNotice" class="notice" role="alert" hidden>
+        <span><b>Your data is not being saved here.</b> This page blocks browser storage. Download the file and open it in Chrome or Safari. Until then, export a backup before you leave.</span>
+        <button class="btn btn-sm" data-action="exportData" type="button">Export backup</button>
+      </div>
+
+      <!-- Each page is drawn into this element by script.js -->
+      <main id="view" class="content" tabindex="-1"></main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION (hidden on desktop) -->
+    <nav id="bottomNav" class="bottom-nav" aria-label="Main mobile"></nav>
+  </div>
+
+  <!-- FOCUS MODE: a full-screen layer that hides everything else -->
+  <div id="focus" class="focus" hidden role="dialog" aria-modal="true" aria-labelledby="focusTitle">
+    <div class="focus-inner">
+      <button class="focus-close" data-action="closeFocus" type="button" aria-label="Exit focus mode">
+        <svg class="icon"><use href="#i-x"/></svg>
+      </button>
+
+      <p class="muted">Focus mode</p>
+      <h2 id="focusTitle" class="focus-quote">&ldquo;Do the work. Ignore the distraction.&rdquo;</h2>
+
+      <div class="field focus-task">
+        <label for="focusTask">Working on</label>
+        <select id="focusTask" class="input"></select>
+      </div>
+
+      <div class="focus-time" id="focusTime" role="timer" aria-live="off">50:00</div>
+      <div class="bar bar-lg"><span id="focusBar" style="width:0%"></span></div>
+
+      <div class="segmented" id="focusPresets" role="group" aria-label="Session length">
+        <button type="button" class="seg-btn" data-action="focusPreset" data-min="25">25 min</button>
+        <button type="button" class="seg-btn" data-action="focusPreset" data-min="50">50 min</button>
+        <button type="button" class="seg-btn" data-action="focusPreset" data-min="90">90 min</button>
+      </div>
+
+      <div class="focus-controls">
+        <button id="focusToggle" class="btn btn-primary btn-lg" data-action="focusToggle" type="button">Start focus session</button>
+        <button class="btn btn-lg" data-action="focusReset" type="button">Reset</button>
+      </div>
+      <p id="focusNote" class="muted" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <!-- Hidden file picker used by "Import data" in Settings -->
+  <input type="file" id="importFile" accept="application/json" hidden>
+
+  <script>
+"use strict";
+
+/* ==========================================================
+   DAILY DISCIPLINE DASHBOARD - script.js
+
+   HOW THIS FILE IS ORGANIZED (read top to bottom):
+
+   1. CONFIG    <- your routine, rules, habits, quotes. EDIT THIS PART.
+   2. UTILS     - tiny helper functions
+   3. DATES     - date helpers (dates are saved as "2026-10-06")
+   4. STORE     - the ONLY code that touches localStorage
+   5. MODEL     - reads/writes your data, calculates percentages
+   6. STREAKS   - calculates streaks from your saved history
+   7. VIEWS     - one function per page; each returns HTML
+   8. ACTIONS   - what happens when you click or type
+   9. FOCUS     - the focus mode timer
+   10. APP      - starts everything and redraws the page
+   ========================================================== */
+
+
+/* ==========================================================
+   1. CONFIG - EDIT YOUR ROUTINE HERE
+
+   - Every task needs a unique `id`. Keep an id the same if you
+     only rename the text, so your history stays connected.
+   - Delete a line to remove a task. Add a line to add one.
+   ========================================================== */
+
+// Settings you can also change inside the app (Settings page)
+const DEFAULT_SETTINGS = {
+  name: "",             // shown in the greeting
+  streakThreshold: 80,  // % of the routine needed to keep the Daily streak
+  focusMinutes: 50,     // default focus session length
+  tradeLimit: 3,        // max quality trades per day
+  maxRisk: 5            // max risk % per day
+};
+
+// The daily routine. The dashboard percentage is based on these tasks.
+const ROUTINE = [
+  { id: "morning", title: "Morning", time: "4:00 AM to 7:30 AM", tasks: [
+    { id: "m-wake",   text: "Wake up", note: "4:00 AM" },
+    { id: "m-pray",   text: "Pray" },
+    { id: "m-bible",  text: "Read the Bible", note: "1 hour / 3 chapters" },
+    { id: "m-gym",    text: "Workout / Gym" },
+    { id: "m-ready",  text: "Shower and get ready" },
+    { id: "m-plan",   text: "Plan the day" },
+    { id: "m-social", text: "Update social media" },
+    { id: "m-charts", text: "Analyze charts before London Session" }
+  ]},
+  { id: "trading", title: "Trading", time: "London and New York", tasks: [
+    { id: "t-london",   text: "Trade only London Session" },
+    { id: "t-ny",       text: "Trade only New York Session" },
+    { id: "t-max",      text: "Take maximum 2-3 quality trades per day" },
+    { id: "t-strategy", text: "Follow my trading strategy" },
+    { id: "t-sl",       text: "Always use Stop Loss" },
+    { id: "t-risk",     text: "Risk only 3-5% maximum" },
+    { id: "t-revenge",  text: "Do not revenge trade" },
+    { id: "t-over",     text: "Do not overtrade" },
+    { id: "t-stop",     text: "Stop trading after reaching my daily trade limit" },
+    { id: "t-review",   text: "Review every trade" }
+  ]},
+  { id: "work", title: "Work and development", time: "Build and learn", tasks: [
+    { id: "w-project",  text: "Project Work", note: "Target: 5 hours" },
+    { id: "w-skill",    text: "Skill Development / Study", note: "Target: 3 hours" },
+    { id: "w-business", text: "Learn and research business ideas" },
+    { id: "w-people",   text: "Connect with useful/valuable people" },
+    { id: "w-read",     text: "Read at least one chapter of a book" },
+    { id: "w-lang",     text: "Learn/practice a new language" }
+  ]},
+  { id: "discipline", title: "Personal discipline", time: "All day", tasks: [
+    { id: "d-porn",       text: "No porn" },
+    { id: "d-nude",       text: "No nude videos or images" },
+    { id: "d-chat",       text: "No unnecessary chatting" },
+    { id: "d-scroll",     text: "No unnecessary social media scrolling" },
+    { id: "d-procrast",   text: "Do not procrastinate" },
+    { id: "d-focus",      text: "Stay focused during work" },
+    { id: "d-socialtool", text: "Use social media only when necessary for work or during designated times" }
+  ]},
+  { id: "night", title: "Night review", time: "Before sleep", tasks: [
+    { id: "n-journal",  text: "Journal" },
+    { id: "n-day",      text: "Review the day's activities" },
+    { id: "n-trades",   text: "Review my trades" },
+    { id: "n-well",     text: "Identify what I did well" },
+    { id: "n-bad",      text: "Identify what I did badly" },
+    { id: "n-learned",  text: "Write what I learned" },
+    { id: "n-tomorrow", text: "Prepare tomorrow's plan" },
+    { id: "n-sleep",    text: "Sleep by 12:00 AM" }
+  ]}
+];
+
+// Rules you tick off after your trading session (Trading page)
+const TRADING_RULES = [
+  { id: "r-london",   text: "London Session Only" },
+  { id: "r-ny",       text: "New York Session Only" },
+  { id: "r-max",      text: "Maximum 2-3 Trades" },
+  { id: "r-sl",       text: "Stop Loss Required" },
+  { id: "r-risk",     text: "Risk Management" },
+  { id: "r-revenge",  text: "No Revenge Trading" },
+  { id: "r-over",     text: "No Overtrading" },
+  { id: "r-strategy", text: "Follow Trading Strategy" },
+  { id: "r-review",   text: "Review Every Trade" }
+];
+
+/* Habits (Habits page).
+   - `tasks`: the habit counts as done when ALL these routine tasks are checked,
+     so you never tick the same thing twice.
+   - `rules: true`: done when every trading rule is checked.
+   - Neither: a standalone habit you tick by hand on the Habits page. */
+const HABITS = [
+  { id: "h-wake",     label: "Wake up at 4:00 AM",        tasks: ["m-wake"] },
+  { id: "h-pray",     label: "Prayer",                    tasks: ["m-pray"] },
+  { id: "h-gym",      label: "Gym",                       tasks: ["m-gym"] },
+  { id: "h-bible",    label: "Bible reading",             tasks: ["m-bible"] },
+  { id: "h-trading",  label: "Trading discipline",        rules: true },
+  { id: "h-study",    label: "Study",                     tasks: ["w-skill"] },
+  { id: "h-project",  label: "Project work",              tasks: ["w-project"] },
+  { id: "h-reading",  label: "Reading",                   tasks: ["w-read"] },
+  { id: "h-language", label: "Language learning",         tasks: ["w-lang"] },
+  { id: "h-nonude",   label: "No porn/nude content",      tasks: ["d-porn", "d-nude"] },
+  { id: "h-nochat",   label: "No unnecessary chatting",   tasks: ["d-chat"] },
+  { id: "h-journal",  label: "Journaling",                tasks: ["n-journal"] },
+  { id: "h-review",   label: "Day review",                tasks: ["n-day"] },
+  { id: "h-sleep",    label: "Sleep by 12:00 AM",         tasks: ["n-sleep"] }
+];
+
+// Streak rules. `test(day)` returns true when that day counts.
+// The streak is the number of days in a row that pass the test.
+const STREAKS = [
+  { id: "daily",   label: "Daily Discipline",
+    help: "Routine completion at or above your target %",
+    test: (day) => Model.completion(day).pct >= Model.settings().streakThreshold },
+  { id: "trading", label: "Trading Discipline",
+    help: "Every trading rule checked",
+    test: (day) => Model.allRulesChecked(day) },
+  { id: "focus",   label: "No Distraction",
+    help: "Social media status Focused and no unnecessary scrolling",
+    test: (day) => day.social.status === "focused" && !!day.tasks["d-scroll"] },
+  { id: "project", label: "Project Work",
+    help: "Project work checked",
+    test: (day) => !!day.tasks["w-project"] }
+];
+
+const QUOTES = [
+  "Discipline before motivation.",
+  "Don't trade because you are bored. Trade because your setup is valid.",
+  "You don't need to take every opportunity.",
+  "Small progress every day creates a different life.",
+  "Your future is built by what you repeatedly do.",
+  "Focus on the process. The results will follow."
+];
+
+// The pages. `id` is also the URL hash (index.html#trading).
+const VIEWS = [
+  { id: "dashboard", label: "Dashboard",     short: "Home",     icon: "home" },
+  { id: "routine",   label: "Daily Routine", short: "Routine",  icon: "routine" },
+  { id: "trading",   label: "Trading",       short: "Trade",    icon: "trading" },
+  { id: "habits",    label: "Habits",        short: "Habits",   icon: "habits" },
+  { id: "journal",   label: "Journal",       short: "Journal",  icon: "journal" },
+  { id: "planner",   label: "Day Planner",   short: "Plan",     icon: "planner" },
+  { id: "progress",  label: "Progress",      short: "Stats",    icon: "progress" },
+  { id: "settings",  label: "Settings",      short: "Settings", icon: "settings" }
+];
+
+
+/* ==========================================================
+   2. UTILS
+   ========================================================== */
+const $ = (selector) => document.querySelector(selector);
+
+// Escape text before putting it into HTML (stops broken markup)
+function esc(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+const icon = (name) => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+
+// Store true as a key, or remove the key when false (keeps saved data small)
+function setFlag(obj, key, value) {
+  if (value) obj[key] = true; else delete obj[key];
+}
+
+const average = (list) => list.length ? Math.round(list.reduce((a, b) => a + b, 0) / list.length) : 0;
+
+
+/* ==========================================================
+   3. DATES
+   Dates are saved as text like "2026-10-06" (in YOUR local time).
+   ========================================================== */
+const Dates = {
+  key(d) {
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${m}-${day}`;
+  },
+  parse(key) {
+    const [y, m, d] = key.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  },
+  addDays(d, n) {
+    const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    copy.setDate(copy.getDate() + n);
+    return copy;
+  },
+  diffDays(keyA, keyB) {
+    return Math.round((Dates.parse(keyB) - Dates.parse(keyA)) / 86400000);
+  },
+  // The 7 days of the week containing `d`, Monday first
+  week(d) {
+    const monday = Dates.addDays(d, -((d.getDay() + 6) % 7));
+    return Array.from({ length: 7 }, (_, i) => Dates.addDays(monday, i));
+  },
+  long: (d) => d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }),
+  short: (d) => d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+  weekday: (d) => d.toLocaleDateString(undefined, { weekday: "short" })
+};
+
+
+/* ==========================================================
+   4. STORE - the only place that talks to localStorage.
+
+   To move to a real database later, change `load` and `save`
+   (for example to fetch() calls) and keep the rest of the app.
+   ========================================================== */
+const Store = {
+  KEY: "daily-discipline-dashboard-v1",
+
+  /* Where your data is saved:
+       "local"    = this browser's localStorage (normal use)
+       "artifact" = Claude's own saved storage (when previewed inside Claude)
+       "memory"   = NOT saved (the page blocks storage). The app shows a warning. */
+  mode: "memory",
+
+  // Works out where saving is possible. Runs once at start-up.
+  detect() {
+    try {
+      localStorage.setItem(this.KEY + ":test", "1");
+      localStorage.removeItem(this.KEY + ":test");
+      this.mode = "local";
+    } catch (err) {
+      this.mode = (window.storage && typeof window.storage.get === "function") ? "artifact" : "memory";
+    }
+  },
+
+  // Returns the saved data, or null if nothing has been saved yet
+  async load() {
+    try {
+      let raw = null;
+      if (this.mode === "local") {
+        raw = localStorage.getItem(this.KEY);
+      } else if (this.mode === "artifact") {
+        const result = await window.storage.get(this.KEY);
+        raw = result && result.value;
+      }
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      return null;   // nothing saved yet, or the saved text was unreadable
+    }
+  },
+
+  save(data) {
+    const text = JSON.stringify(data);
+    try {
+      if (this.mode === "local") {
+        localStorage.setItem(this.KEY, text);
+      } else if (this.mode === "artifact") {
+        window.storage.set(this.KEY, text).catch(() => this.failed());
+      }
+    } catch (err) {
+      this.failed();
+    }
+  },
+
+  // Saving stopped working (storage full or blocked): warn the user
+  failed() {
+    this.mode = "memory";
+    if (typeof App !== "undefined") App.updateStorageNotice();
+  },
+
+  clear() {
+    try {
+      if (this.mode === "local") localStorage.removeItem(this.KEY);
+      else if (this.mode === "artifact") window.storage.delete(this.KEY).catch(() => {});
+    } catch (err) { /* ignore */ }
+  },
+
+  statusText() {
+    if (this.mode === "local") return "Your data saves automatically in this browser.";
+    if (this.mode === "artifact") return "Your data saves automatically in Claude's storage.";
+    return "Your data is NOT being saved right now. Download the file and open it in Chrome or Safari.";
+  }
+};
+
+
+/* ==========================================================
+   5. MODEL - your data and the maths on top of it
+
+   Saved shape:
+   {
+     settings: { ... },
+     days: {
+       "2026-10-06": { tasks, rules, habits, journal, planner,
+                       trading, social, focusSessions }
+     }
+   }
+   ========================================================== */
+const Model = {
+  data: null,
+
+  // Loads saved data (async, because Claude's storage is async)
+  async init() {
+    const saved = await Store.load();
+    this.data = {
+      settings: Object.assign({}, DEFAULT_SETTINGS, saved && saved.settings),
+      days: (saved && saved.days) || {}
+    };
+  },
+  save() { Store.save(this.data); },
+  settings() { return this.data.settings; },
+
+  // What one empty day looks like. Add new fields here for new features.
+  defaultDay() {
+    return {
+      tasks: {},      // { "m-wake": true }
+      rules: {},      // { "r-sl": true }
+      habits: {},     // only for standalone habits
+      journal: { how: "", accomplished: "", learned: "", wrong: "", improve: "", win: "" },
+      planner: {
+        priorities: [
+          { text: "", done: false }, { text: "", done: false }, { text: "", done: false }
+        ],
+        tasks: []     // [{ text, done }]
+      },
+      trading: { trades: "", wins: "", losses: "", pl: "", risk: "", best: "", worst: "", followed: "", lesson: "" },
+      social: { status: "", workOnly: false, sessions: 0, minutes: "" },
+      focusSessions: 0
+    };
+  },
+
+  // Adds any missing fields so old saved days keep working after updates
+  fillDefaults(target, defaults) {
+    Object.keys(defaults).forEach((k) => {
+      if (target[k] === undefined) target[k] = defaults[k];
+      else if (isPlainObject(defaults[k]) && isPlainObject(target[k])) this.fillDefaults(target[k], defaults[k]);
+    });
+    return target;
+  },
+
+  // Get a day for editing (creates it if needed)
+  getDay(key) {
+    if (!this.data.days[key]) this.data.days[key] = {};
+    return this.fillDefaults(this.data.days[key], this.defaultDay());
+  },
+  // Get a day for reading only (does not create it)
+  peekDay(key) {
+    return this.fillDefaults(this.data.days[key] || {}, this.defaultDay());
+  },
+  today() { return this.getDay(Dates.key(new Date())); },
+
+  // How many routine tasks are done, in total and per section
+  completion(day) {
+    let done = 0, total = 0;
+    const sections = {};
+    ROUTINE.forEach((section) => {
+      const sectionDone = section.tasks.filter((t) => day.tasks[t.id]).length;
+      sections[section.id] = { done: sectionDone, total: section.tasks.length };
+      done += sectionDone;
+      total += section.tasks.length;
+    });
+    return { done, total, remaining: total - done, pct: total ? Math.round((done / total) * 100) : 0, sections };
+  },
+
+  allRulesChecked(day) {
+    return TRADING_RULES.every((r) => day.rules[r.id]);
+  },
+
+  habitDone(day, habit) {
+    if (habit.rules) return this.allRulesChecked(day);
+    if (habit.tasks && habit.tasks.length) return habit.tasks.every((id) => day.tasks[id]);
+    return !!day.habits[habit.id];
+  },
+
+  setHabit(day, habit, value) {
+    if (habit.rules) TRADING_RULES.forEach((r) => setFlag(day.rules, r.id, value));
+    else if (habit.tasks && habit.tasks.length) habit.tasks.forEach((id) => setFlag(day.tasks, id, value));
+    else setFlag(day.habits, habit.id, value);
+  },
+
+  // Keys for the last `count` days ending today, oldest first
+  lastDays(count) {
+    const today = new Date();
+    return Array.from({ length: count }, (_, i) => Dates.addDays(today, i - (count - 1)));
+  }
+};
+
+
+/* ==========================================================
+   6. STREAKS - counted from your saved history
+   ========================================================== */
+const Streaks = {
+  // Days in a row up to today. If today isn't done yet, yesterday still counts.
+  current(test) {
+    let d = new Date();
+    if (!test(Model.peekDay(Dates.key(d)))) d = Dates.addDays(d, -1);
+    let count = 0;
+    while (count < 3650 && test(Model.peekDay(Dates.key(d)))) {
+      count++;
+      d = Dates.addDays(d, -1);
+    }
+    return count;
+  },
+
+  // Longest run ever recorded
+  best(test) {
+    const keys = Object.keys(Model.data.days).sort();
+    let best = 0, run = 0, prevOk = null;
+    keys.forEach((key) => {
+      if (test(Model.peekDay(key))) {
+        run = prevOk && Dates.diffDays(prevOk, key) === 1 ? run + 1 : 1;
+        prevOk = key;
+        best = Math.max(best, run);
+      } else {
+        run = 0;
+        prevOk = null;
+      }
+    });
+    return best;
+  }
+};
+
+
+/* ==========================================================
+   7. VIEWS - each function returns the HTML for one page
+   ========================================================== */
+
+// A checkbox row. `action` names a function in ACTIONS (section 8).
+function checkbox({ id, checked, action, data = {}, label, note }) {
+  const attrs = Object.entries(data).map(([k, v]) => `data-${k}="${esc(v)}"`).join(" ");
+  return `
+    <label class="check">
+      <input type="checkbox" id="${id}" data-action="${action}" ${attrs} ${checked ? "checked" : ""}>
+      <span class="box" aria-hidden="true">${icon("check")}</span>
+      <span class="check-text">${esc(label)}${note ? `<small>${esc(note)}</small>` : ""}</span>
+    </label>`;
+}
+
+function pageHead(title, subtitle) {
+  return `<header class="page-head"><div><h1>${esc(title)}</h1><p class="muted">${esc(subtitle)}</p></div></header>`;
+}
+
+// A text box saved automatically. `path` says where in today's data it lives.
+function field(label, path, value, { type = "text", textarea = false, wide = false, extra = "" } = {}) {
+  const id = "f-" + path.replace(/\./g, "-");
+  const control = textarea
+    ? `<textarea class="input" id="${id}" data-bind="${path}" ${extra}>${esc(value)}</textarea>`
+    : `<input class="input" id="${id}" data-bind="${path}" type="${type}" value="${esc(value)}" ${extra}>`;
+  return `<div class="field${wide ? " wide" : ""}"><label for="${id}">${esc(label)}</label>${control}</div>`;
+}
+
+// A row of small bars (used for the week and the last 14 days)
+function barChart(items, short = false) {
+  return `<div class="chart${short ? " short" : ""}">${items.map((it) => `
+    <div class="col${it.today ? " is-today" : ""}" title="${esc(it.title)}">
+      <div class="col-track"><i style="height:${it.pct}%"></i></div>
+      <span>${esc(it.label)}</span>
+    </div>`).join("")}</div>`;
+}
+
+const Views = {
+
+  /* ----- Trading limit message (also updated live while typing) ----- */
+  tradeStatus(day) {
+    const s = Model.settings();
+    const trades = Number(day.trading.trades) || 0;
+    const risk = Number(day.trading.risk) || 0;
+    const problems = [];
+    if (risk > s.maxRisk) problems.push(`Risk is above your ${s.maxRisk}% maximum.`);
+    if (trades >= s.tradeLimit) problems.push(`Daily trade limit reached (${trades} of ${s.tradeLimit}). Stop trading and review.`);
+    if (!problems.length) return { level: "ok", text: `Within your limits: ${trades} of ${s.tradeLimit} trades, ${risk}% risk.` };
+    return { level: risk > s.maxRisk ? "danger" : "warn", text: problems.join(" ") };
+  },
+
+  updateTradeBanner() {
+    const el = $("#tradeBanner");
+    if (!el) return;
+    const status = Views.tradeStatus(Model.today());
+    el.className = "banner " + status.level;
+    el.textContent = status.text;
+  },
+
+  /* ----- DASHBOARD ----- */
+  dashboard() {
+    const now = new Date();
+    const s = Model.settings();
+    const day = Model.today();
+    const c = Model.completion(day);
+    const streak = Streaks.current(STREAKS[0].test);
+    const hour = now.getHours();
+    const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+    const circumference = 339.3;
+    const offset = circumference - (c.pct / 100) * circumference;
+
+    const priorities = day.planner.priorities
+      .map((p, index) => ({ ...p, index }))
+      .filter((p) => p.text.trim());
+
+    const rulesDone = TRADING_RULES.filter((r) => day.rules[r.id]).length;
+    const tradeStatus = Views.tradeStatus(day);
+    const todayKey = Dates.key(now);
+    const week = Dates.week(now).map((d) => {
+      const key = Dates.key(d);
+      return {
+        label: Dates.weekday(d),
+        today: key === todayKey,
+        pct: key > todayKey ? 0 : Model.completion(Model.peekDay(key)).pct,
+        title: `${Dates.short(d)}: ${key > todayKey ? "upcoming" : Model.completion(Model.peekDay(key)).pct + "%"}`
+      };
+    });
+
+    const social = day.social;
+    const statusButton = (value, label, dot) => `
+      <button type="button" class="seg-btn${social.status === value ? " is-active" : ""}" data-action="setSocial" data-value="${value}" aria-pressed="${social.status === value}">
+        <span class="dot dot-${dot}"></span>${label}
+      </button>`;
+
+    return `
+      <header class="page-head">
+        <div>
+          <h1>${greeting}${s.name ? ", " + esc(s.name) : ""}</h1>
+          <p class="muted">${Dates.long(now)} &middot; <span id="clock">${now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></p>
+        </div>
+      </header>
+
+      <div class="grid cols-2">
+
+        <section class="card" aria-labelledby="h-progress">
+          <div class="card-head"><h2 id="h-progress">Today's progress</h2></div>
+          <div class="progress-flex">
+            <div class="ring" role="img" aria-label="${c.pct} percent complete">
+              <svg viewBox="0 0 128 128">
+                <circle class="ring-track" cx="64" cy="64" r="54"/>
+                <circle class="ring-fill" cx="64" cy="64" r="54" style="stroke-dashoffset:${offset}"/>
+              </svg>
+              <div class="ring-center"><b>${c.pct}%</b><span>complete</span></div>
+            </div>
+            <div class="stats">
+              <div class="stat"><b>${c.done}</b><span>completed</span></div>
+              <div class="stat"><b>${c.remaining}</b><span>remaining</span></div>
+              <div class="stat"><b>${icon("flame")}${streak}</b><span>day streak</span></div>
+            </div>
+          </div>
+          <p class="muted small" style="margin-top:16px">${c.done} / ${c.total} tasks completed</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-prio">
+          <div class="card-head"><h2 id="h-prio">Today's main priorities</h2><a href="#planner" class="small">Edit</a></div>
+          ${priorities.length
+            ? `<div class="check-list">${priorities.map((p) => checkbox({
+                id: "dp-" + p.index, checked: p.done, action: "togglePriority",
+                data: { index: p.index }, label: p.text })).join("")}</div>`
+            : `<p class="empty">No priorities yet. Set your top 3 in the <a href="#planner">Day Planner</a>.</p>`}
+        </section>
+
+        <section class="card" aria-labelledby="h-sections">
+          <div class="card-head"><h2 id="h-sections">Routine by section</h2><a href="#routine" class="small">Open</a></div>
+          ${ROUTINE.map((sec) => {
+            const sc = c.sections[sec.id];
+            const pct = sc.total ? Math.round((sc.done / sc.total) * 100) : 0;
+            return `<div class="row-bar">
+              <div class="row-bar-head"><span>${esc(sec.title)}</span><span class="muted">${sc.done}/${sc.total}</span></div>
+              <div class="bar"><span style="width:${pct}%"></span></div>
+            </div>`;
+          }).join("")}
+        </section>
+
+        <section class="card" aria-labelledby="h-quote">
+          <div class="card-head"><h2 id="h-quote">Reminder</h2></div>
+          <p class="quote" id="quoteText">&ldquo;${esc(QUOTES[App.quoteIndex % QUOTES.length])}&rdquo;</p>
+          <div class="card-actions">
+            <button class="btn btn-primary" type="button" data-action="openFocus">${icon("target")} Start focus session</button>
+            <button class="btn" type="button" data-action="nextQuote">Next</button>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-streaks">
+          <div class="card-head"><h2 id="h-streaks">Streaks</h2></div>
+          ${STREAKS.map((st) => `
+            <div class="streak-row">
+              <div><b>${esc(st.label)}</b><small>${esc(st.help)}</small></div>
+              <div class="streak-val">${icon("flame")}${Streaks.current(st.test)}<small class="muted">best ${Streaks.best(st.test)}</small></div>
+            </div>`).join("")}
+        </section>
+
+        <section class="card" aria-labelledby="h-social">
+          <div class="card-head"><h2 id="h-social">Social media discipline</h2></div>
+          <p class="muted" style="margin-bottom:14px">&ldquo;Social media is a tool, not a distraction.&rdquo;</p>
+          <div class="segmented" role="group" aria-label="Social media status">
+            ${statusButton("focused", "Focused", "green")}
+            ${statusButton("limited", "Limited", "amber")}
+            ${statusButton("distracted", "Distracted", "red")}
+          </div>
+          <label class="check" style="margin-top:10px">
+            <input type="checkbox" id="f-social-workOnly" data-bind="social.workOnly" ${social.workOnly ? "checked" : ""}>
+            <span class="box" aria-hidden="true">${icon("check")}</span>
+            <span class="check-text">I used social media only for work/networking today.</span>
+          </label>
+          <div class="form-grid" style="margin-top:14px; align-items:end">
+            <div class="field">
+              <label>Sessions today</label>
+              <div class="stepper">
+                <button class="btn btn-icon" type="button" data-action="sessions" data-delta="-1" aria-label="One fewer session">${icon("minus")}</button>
+                <b>${social.sessions}</b>
+                <button class="btn btn-icon" type="button" data-action="sessions" data-delta="1" aria-label="One more session">${icon("plus")}</button>
+              </div>
+            </div>
+            ${field("Time spent (minutes, optional)", "social.minutes", social.minutes, { type: "number", extra: 'min="0" inputmode="numeric"' })}
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-trade">
+          <div class="card-head"><h2 id="h-trade">Trading today</h2><a href="#trading" class="small">Open</a></div>
+          <div id="tradeBanner" class="banner ${tradeStatus.level}">${esc(tradeStatus.text)}</div>
+          <div class="kpis" style="margin-top:14px; grid-template-columns:repeat(2,minmax(0,1fr))">
+            <div class="kpi"><b>${rulesDone}/${TRADING_RULES.length}</b><span>rules checked</span></div>
+            <div class="kpi"><b>${day.trading.followed ? esc(day.trading.followed.toUpperCase()) : "-"}</b><span>followed my rules</span></div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-week">
+          <div class="card-head"><h2 id="h-week">This week</h2><a href="#progress" class="small">Progress</a></div>
+          ${barChart(week, true)}
+        </section>
+
+      </div>`;
+  },
+
+  /* ----- DAILY ROUTINE ----- */
+  routine() {
+    const day = Model.today();
+    const c = Model.completion(day);
+    return `
+      ${pageHead("Daily routine", `${c.done} of ${c.total} tasks done today`)}
+      <div class="grid-auto">
+        ${ROUTINE.map((sec) => {
+          const sc = c.sections[sec.id];
+          const pct = sc.total ? Math.round((sc.done / sc.total) * 100) : 0;
+          return `
+            <section class="card" aria-label="${esc(sec.title)}">
+              <div class="card-head"><h2>${esc(sec.title)}</h2><span class="muted">${esc(sec.time)}</span></div>
+              <div class="bar" style="margin-bottom:8px"><span style="width:${pct}%"></span></div>
+              <p class="muted small" style="margin-bottom:6px">${sc.done} of ${sc.total} done</p>
+              <div class="check-list">
+                ${sec.tasks.map((t) => checkbox({
+                  id: "t-" + t.id, checked: !!day.tasks[t.id], action: "toggleTask",
+                  data: { id: t.id }, label: t.text, note: t.note })).join("")}
+              </div>
+            </section>`;
+        }).join("")}
+      </div>`;
+  },
+
+  /* ----- TRADING ----- */
+  trading() {
+    const day = Model.today();
+    const t = day.trading;
+    const rulesDone = TRADING_RULES.filter((r) => day.rules[r.id]).length;
+    const status = Views.tradeStatus(day);
+    const numberExtra = 'min="0" inputmode="numeric"';
+
+    return `
+      ${pageHead("Trading", "I don't need to trade every opportunity. I only need to take the right ones.")}
+      <div id="tradeBanner" class="banner ${status.level}" style="margin-bottom:16px">${esc(status.text)}</div>
+
+      <div class="grid cols-2">
+        <section class="card" aria-labelledby="h-rules">
+          <div class="card-head"><h2 id="h-rules">Trading rules</h2><span class="muted">${rulesDone} of ${TRADING_RULES.length} checked</span></div>
+          <p class="muted small" style="margin-bottom:6px">Check each rule after your trading session.</p>
+          <div class="check-list">
+            ${TRADING_RULES.map((r) => checkbox({
+              id: "r-" + r.id, checked: !!day.rules[r.id], action: "toggleRule",
+              data: { id: r.id }, label: r.text })).join("")}
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-summary">
+          <div class="card-head"><h2 id="h-summary">Today's trading summary</h2></div>
+          <div class="form-grid">
+            ${field("Number of trades", "trading.trades", t.trades, { type: "number", extra: numberExtra })}
+            ${field("Risk %", "trading.risk", t.risk, { type: "number", extra: 'min="0" step="any" inputmode="decimal"' })}
+            ${field("Winning trades", "trading.wins", t.wins, { type: "number", extra: numberExtra })}
+            ${field("Losing trades", "trading.losses", t.losses, { type: "number", extra: numberExtra })}
+            ${field("Total P/L", "trading.pl", t.pl, { type: "number", extra: 'step="any" inputmode="decimal"' })}
+            <div></div>
+            ${field("Best trade", "trading.best", t.best)}
+            ${field("Worst trade", "trading.worst", t.worst)}
+            <div class="field wide">
+              <label>Did I follow my rules?</label>
+              <div class="segmented" role="group" aria-label="Did I follow my rules">
+                <button type="button" class="seg-btn is-yes${t.followed === "yes" ? " is-active" : ""}" data-action="setFollowed" data-value="yes" aria-pressed="${t.followed === "yes"}">YES</button>
+                <button type="button" class="seg-btn is-no${t.followed === "no" ? " is-active" : ""}" data-action="setFollowed" data-value="no" aria-pressed="${t.followed === "no"}">NO</button>
+              </div>
+            </div>
+            ${field("Trading lesson", "trading.lesson", t.lesson, { textarea: true, wide: true })}
+          </div>
+        </section>
+      </div>`;
+  },
+
+  /* ----- HABITS ----- */
+  habits() {
+    const today = new Date();
+    const todayKey = Dates.key(today);
+    const days = Dates.week(today).map((d) => ({ d, key: Dates.key(d) }));
+    const elapsed = days.filter((x) => x.key <= todayKey).length;
+    let doneTotal = 0;
+
+    const rows = HABITS.map((h) => {
+      let count = 0;
+      const cells = days.map(({ d, key }) => {
+        const future = key > todayKey;
+        const done = !future && Model.habitDone(Model.peekDay(key), h);
+        if (done) { count++; doneTotal++; }
+        return `<button type="button" id="hc-${h.id}-${key}"
+                  class="habit-cell${done ? " is-done" : ""}${key === todayKey ? " is-today" : ""}"
+                  data-action="toggleHabit" data-habit="${h.id}" data-date="${key}"
+                  aria-pressed="${done}" aria-label="${esc(h.label)}, ${Dates.weekday(d)}" ${future ? "disabled" : ""}>
+                  <span class="dlabel">${Dates.weekday(d)}</span>${done ? icon("check") : ""}</button>`;
+      }).join("");
+      return `<div class="habit-row">
+        <div class="habit-name"><span>${esc(h.label)}</span><em class="count-m">${count}/${elapsed}</em></div>
+        ${cells}
+        <div class="habit-count">${count}/${elapsed}</div>
+      </div>`;
+    }).join("");
+
+    const possible = elapsed * HABITS.length;
+    const weekPct = possible ? Math.round((doneTotal / possible) * 100) : 0;
+
+    return `
+      ${pageHead("Habits", `Week of ${Dates.short(days[0].d)} to ${Dates.short(days[6].d)}. Consistency so far: ${weekPct}%`)}
+      <section class="card" aria-label="Weekly habit tracker">
+        <div class="habit-row habit-head" aria-hidden="true">
+          <div></div>
+          ${days.map(({ d, key }) => `<div class="hh${key === todayKey ? " is-today" : ""}">${Dates.weekday(d)}</div>`).join("")}
+          <div></div>
+        </div>
+        ${rows}
+      </section>
+      <p class="muted small" style="margin-top:12px">Habits linked to your routine update automatically. You can also tap any day this week to fix it.</p>`;
+  },
+
+  /* ----- JOURNAL ----- */
+  journal() {
+    const day = Model.today();
+    const j = day.journal;
+    const todayKey = Dates.key(new Date());
+
+    const past = Object.keys(Model.data.days).sort().reverse()
+      .filter((key) => key < todayKey)
+      .map((key) => ({ key, journal: Model.peekDay(key).journal }))
+      .filter((e) => Object.values(e.journal).some((v) => String(v).trim()))
+      .slice(0, 10);
+
+    const labels = {
+      how: "How was my day?", accomplished: "What did I accomplish?", learned: "What did I learn?",
+      wrong: "What did I do wrong?", improve: "What will I improve tomorrow?", win: "Today's biggest win"
+    };
+
+    return `
+      ${pageHead("Journal", Dates.long(new Date()))}
+      <section class="card" aria-label="Today's journal">
+        <div class="form-grid">
+          ${field(labels.how, "journal.how", j.how, { textarea: true, wide: true })}
+          ${field(labels.accomplished, "journal.accomplished", j.accomplished, { textarea: true, wide: true })}
+          ${field(labels.learned, "journal.learned", j.learned, { textarea: true, wide: true })}
+          ${field(labels.wrong, "journal.wrong", j.wrong, { textarea: true, wide: true })}
+          ${field(labels.improve, "journal.improve", j.improve, { textarea: true, wide: true })}
+          ${field(labels.win, "journal.win", j.win, { wide: true })}
+        </div>
+        <p class="muted small" style="margin-top:12px">Saved automatically as you type.</p>
+      </section>
+
+      <section class="card" style="margin-top:16px" aria-label="Past entries">
+        <div class="card-head"><h2>Past entries</h2></div>
+        ${past.length ? past.map((e) => `
+          <details class="entry">
+            <summary><span>${Dates.long(Dates.parse(e.key))}</span><span class="muted">${esc(e.journal.win || "")}</span></summary>
+            <dl>
+              ${Object.keys(labels).filter((k) => String(e.journal[k]).trim()).map((k) =>
+                `<div><dt>${labels[k]}</dt><dd>${esc(e.journal[k])}</dd></div>`).join("")}
+            </dl>
+          </details>`).join("") : `<p class="empty">Your earlier journal entries will appear here.</p>`}
+      </section>`;
+  },
+
+  /* ----- DAY PLANNER ----- */
+  planner() {
+    const day = Model.today();
+    const p = day.planner;
+    return `
+      ${pageHead("Plan your day", Dates.long(new Date()))}
+      <div class="grid cols-2">
+        <section class="card" aria-labelledby="h-top3">
+          <div class="card-head"><h2 id="h-top3">Top 3 priorities</h2></div>
+          <div class="stack">
+            ${p.priorities.map((item, i) => `
+              <div class="plan-prio">
+                ${checkbox({ id: "pp-" + i, checked: item.done, action: "togglePriority", data: { index: i }, label: "" })}
+                <input class="input" id="prio-${i}" data-bind="planner.priorities.${i}.text" value="${esc(item.text)}"
+                       placeholder="Priority ${i + 1}" aria-label="Priority ${i + 1}">
+              </div>`).join("")}
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-other">
+          <div class="card-head"><h2 id="h-other">Other tasks</h2><span class="muted">${p.tasks.filter((t) => t.done).length} of ${p.tasks.length} done</span></div>
+          ${p.tasks.length ? `<div class="check-list">${p.tasks.map((t, i) => `
+            <div class="plan-row">
+              ${checkbox({ id: "pt-" + i, checked: t.done, action: "togglePlanTask", data: { index: i }, label: t.text })}
+              <button class="btn btn-icon btn-sm" type="button" data-action="removePlanTask" data-index="${i}" aria-label="Delete task ${esc(t.text)}">${icon("trash")}</button>
+            </div>`).join("")}</div>`
+            : `<p class="empty">No other tasks yet. Add one below.</p>`}
+          <div class="add-row">
+            <input class="input" id="newTask" data-enter="addPlanTask" placeholder="Add a task" aria-label="New task">
+            <button class="btn btn-primary" type="button" data-action="addPlanTask">${icon("plus")} Add</button>
+          </div>
+        </section>
+      </div>`;
+  },
+
+  /* ----- PROGRESS ----- */
+  progress() {
+    const last14 = Model.lastDays(14);
+    const last30 = Model.lastDays(30);
+    const pctFor = (d) => Model.completion(Model.peekDay(Dates.key(d))).pct;
+    const todayKey = Dates.key(new Date());
+
+    const chart = last14.map((d) => ({
+      label: String(d.getDate()), today: Dates.key(d) === todayKey,
+      pct: pctFor(d), title: `${Dates.short(d)}: ${pctFor(d)}%`
+    }));
+
+    const avg7 = average(last14.slice(7).map(pctFor));
+    const avg30 = average(last30.map(pctFor));
+    const tracked = Object.keys(Model.data.days).filter((k) => Model.completion(Model.peekDay(k)).done > 0).length;
+
+    // Trading totals for the last 30 days
+    let trades = 0, wins = 0, losses = 0, pl = 0, followedYes = 0, followedLogged = 0;
+    last30.forEach((d) => {
+      const t = Model.peekDay(Dates.key(d)).trading;
+      trades += Number(t.trades) || 0;
+      wins += Number(t.wins) || 0;
+      losses += Number(t.losses) || 0;
+      pl += Number(t.pl) || 0;
+      if (t.followed) { followedLogged++; if (t.followed === "yes") followedYes++; }
+    });
+    const winRate = wins + losses ? Math.round((wins / (wins + losses)) * 100) : 0;
+    const plRounded = Math.round(pl * 100) / 100;
+
+    // Habit consistency over the last 30 days
+    const habitRows = HABITS.map((h) => {
+      const done = last30.filter((d) => Model.habitDone(Model.peekDay(Dates.key(d)), h)).length;
+      const pct = Math.round((done / 30) * 100);
+      return `<div class="row-bar">
+        <div class="row-bar-head"><span>${esc(h.label)}</span><span class="muted">${pct}%</span></div>
+        <div class="bar"><span style="width:${pct}%"></span></div>
+      </div>`;
+    }).join("");
+
+    return `
+      ${pageHead("Progress", "How consistent you have been")}
+      <div class="grid cols-2">
+        <section class="card" style="grid-column:1/-1" aria-labelledby="h-14">
+          <div class="card-head"><h2 id="h-14">Routine completion, last 14 days</h2></div>
+          ${barChart(chart)}
+          <div class="kpis" style="margin-top:16px">
+            <div class="kpi"><b>${avg7}%</b><span>7-day average</span></div>
+            <div class="kpi"><b>${avg30}%</b><span>30-day average</span></div>
+            <div class="kpi"><b>${tracked}</b><span>days tracked</span></div>
+            <div class="kpi"><b>${Streaks.best(STREAKS[0].test)}</b><span>best daily streak</span></div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-t30">
+          <div class="card-head"><h2 id="h-t30">Trading, last 30 days</h2></div>
+          <div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+            <div class="kpi"><b>${trades}</b><span>trades</span></div>
+            <div class="kpi"><b>${winRate}%</b><span>win rate (${wins}W / ${losses}L)</span></div>
+            <div class="kpi"><b class="${plRounded > 0 ? "pos" : plRounded < 0 ? "neg" : ""}">${plRounded}</b><span>total P/L</span></div>
+            <div class="kpi"><b>${followedYes}/${followedLogged}</b><span>days I followed my rules</span></div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-streaks2">
+          <div class="card-head"><h2 id="h-streaks2">Streaks</h2></div>
+          ${STREAKS.map((st) => `
+            <div class="streak-row">
+              <div><b>${esc(st.label)}</b><small>${esc(st.help)}</small></div>
+              <div class="streak-val">${icon("flame")}${Streaks.current(st.test)}<small class="muted">best ${Streaks.best(st.test)}</small></div>
+            </div>`).join("")}
+        </section>
+
+        <section class="card" style="grid-column:1/-1" aria-labelledby="h-hab30">
+          <div class="card-head"><h2 id="h-hab30">Habit consistency, last 30 days</h2></div>
+          <div class="grid-auto" style="gap:0 32px">${habitRows}</div>
+        </section>
+      </div>`;
+  },
+
+  /* ----- SETTINGS ----- */
+  settings() {
+    const s = Model.settings();
+    const num = (label, path, value, min, max, step = "1") =>
+      `<div class="field"><label for="s-${path}">${label}</label>
+        <input class="input" id="s-${path}" type="number" data-bind="settings.${path}" data-num data-min="${min}" data-max="${max}" min="${min}" max="${max}" step="${step}" value="${esc(value)}"></div>`;
+
+    return `
+      ${pageHead("Settings", "Make the dashboard fit your routine")}
+      <div class="grid cols-2">
+        <section class="card" aria-labelledby="h-profile">
+          <div class="card-head"><h2 id="h-profile">Profile and targets</h2></div>
+          <div class="form-grid">
+            <div class="field wide"><label for="s-name">Your name (for the greeting)</label>
+              <input class="input" id="s-name" data-bind="settings.name" value="${esc(s.name)}" autocomplete="given-name"></div>
+            ${num("Daily streak target (% of routine)", "streakThreshold", s.streakThreshold, 1, 100)}
+            ${num("Max trades per day", "tradeLimit", s.tradeLimit, 1, 50)}
+            ${num("Max risk per day (%)", "maxRisk", s.maxRisk, 0.1, 100, "any")}
+            <div class="field"><label for="s-focus">Default focus session</label>
+              <select class="input" id="s-focus" data-bind="settings.focusMinutes" data-num data-min="1" data-max="600">
+                ${[25, 50, 90].map((m) => `<option value="${m}" ${Number(s.focusMinutes) === m ? "selected" : ""}>${m} minutes</option>`).join("")}
+              </select></div>
+          </div>
+        </section>
+
+        <div class="stack">
+          <section class="card" aria-labelledby="h-data">
+            <div class="card-head"><h2 id="h-data">Your data</h2></div>
+            <p class="muted">${Store.statusText()} Export a backup now and then.</p>
+            <div class="settings-actions">
+              <button class="btn" type="button" data-action="exportData">Export backup</button>
+              <button class="btn" type="button" data-action="importData">Import backup</button>
+              <button class="btn btn-danger" type="button" data-action="resetData">${icon("refresh")} Reset all data</button>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="h-edit">
+            <div class="card-head"><h2 id="h-edit">Edit your routine</h2></div>
+            <p class="muted">Open <code>script.js</code> and look at section 1, CONFIG. Change the text of any task, add a line or delete one, then refresh the page. Your saved history stays as long as each task keeps its <code>id</code>.</p>
+          </section>
+        </div>
+      </div>`;
+  }
+};
+
+
+/* ==========================================================
+   8. ACTIONS - what happens when you click or type
+
+   Buttons and checkboxes have data-action="name". When used,
+   the function with that name below runs. Returning false means
+   "don't save or redraw" (for things that don't change data).
+   ========================================================== */
+const Actions = {
+  // --- Checking things off ---
+  toggleTask(el) { setFlag(Model.today().tasks, el.dataset.id, el.checked); },
+  toggleRule(el) { setFlag(Model.today().rules, el.dataset.id, el.checked); },
+  togglePriority(el) { Model.today().planner.priorities[Number(el.dataset.index)].done = el.checked; },
+  togglePlanTask(el) { Model.today().planner.tasks[Number(el.dataset.index)].done = el.checked; },
+
+  toggleHabit(el) {
+    const habit = HABITS.find((h) => h.id === el.dataset.habit);
+    const day = Model.getDay(el.dataset.date);
+    Model.setHabit(day, habit, !Model.habitDone(day, habit));
+  },
+
+  // --- Planner ---
+  addPlanTask() {
+    const input = $("#newTask");
+    const text = input.value.trim();
+    if (!text) return false;
+    Model.today().planner.tasks.push({ text, done: false });
+  },
+  removePlanTask(el) { Model.today().planner.tasks.splice(Number(el.dataset.index), 1); },
+
+  // --- Trading and social ---
+  setFollowed(el) {
+    const t = Model.today().trading;
+    t.followed = t.followed === el.dataset.value ? "" : el.dataset.value;
+  },
+  setSocial(el) {
+    const s = Model.today().social;
+    s.status = s.status === el.dataset.value ? "" : el.dataset.value;
+  },
+  sessions(el) {
+    const s = Model.today().social;
+    s.sessions = Math.max(0, Number(s.sessions) + Number(el.dataset.delta));
+  },
+
+  // --- Quotes ---
+  nextQuote() { App.showQuote(App.quoteIndex + 1); return false; },
+
+  // --- Focus mode ---
+  openFocus() { Focus.open(); return false; },
+  closeFocus() { Focus.close(); return false; },
+  focusToggle() { Focus.toggle(); return false; },
+  focusReset() { Focus.reset(); return false; },
+  focusPreset(el) { Focus.setMinutes(Number(el.dataset.min)); return false; },
+
+  // --- Data ---
+  exportData() {
+    const blob = new Blob([JSON.stringify(Model.data, null, 2)], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `daily-discipline-backup-${Dates.key(new Date())}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    return false;
+  },
+  importData() { $("#importFile").click(); return false; },
+  resetData() {
+    if (!confirm("Delete ALL your saved data? This cannot be undone.")) return false;
+    Store.clear();
+    Model.data = { settings: Object.assign({}, DEFAULT_SETTINGS), days: {} };
+  },
+
+  // Called when you pick a backup file
+  readImport(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const saved = JSON.parse(reader.result);
+        if (!saved || typeof saved.days !== "object") throw new Error("Not a backup file");
+        if (!confirm("Replace your current data with this backup?")) return;
+        Model.data = { settings: Object.assign({}, DEFAULT_SETTINGS, saved.settings), days: saved.days };
+        Model.save();
+        App.render();
+      } catch (err) {
+        alert("That file could not be imported. Choose a backup exported from this app.");
+      }
+    };
+    reader.readAsText(file);
+    input.value = "";
+  }
+};
+
+// Runs an action, then saves and redraws (unless the action returned false)
+function runAction(el) {
+  const action = Actions[el.dataset.action];
+  if (!action) return;
+  if (action(el) !== false) {
+    Model.save();
+    App.render();
+  }
+}
+
+/* Text boxes with data-bind="journal.how" save straight into today's data.
+   Paths starting with "settings." save into settings instead. */
+const Binder = {
+  set(el) {
+    const parts = el.dataset.bind.split(".");
+    let target = parts[0] === "settings" ? Model.data : Model.today();
+    for (let i = 0; i < parts.length - 1; i++) target = target[parts[i]];
+
+    let value = el.type === "checkbox" ? el.checked : el.value;
+    if (el.dataset.num !== undefined) {
+      if (el.value === "" || Number.isNaN(Number(el.value))) return;
+      value = Number(el.value);
+      if (el.dataset.min !== undefined) value = Math.max(Number(el.dataset.min), value);
+      if (el.dataset.max !== undefined) value = Math.min(Number(el.dataset.max), value);
+    }
+    target[parts[parts.length - 1]] = value;
+    Model.save();
+    if (parts[0] === "trading") Views.updateTradeBanner();
+  }
+};
+
+
+/* ==========================================================
+   9. FOCUS - the focus mode timer
+   ========================================================== */
+const Focus = {
+  minutes: 50,
+  remaining: 3000,   // seconds left
+  endAt: 0,          // clock time the session ends (keeps the timer accurate)
+  running: false,
+  timerId: null,
+
+  open() {
+    this.pause();
+    this.minutes = Number(Model.settings().focusMinutes) || 50;
+    this.remaining = this.minutes * 60;
+    this.fillTasks();
+    $("#focusNote").textContent = "";
+    $("#focus").hidden = false;
+    document.body.classList.add("no-scroll");
+    this.draw();
+    $("#focusToggle").focus();
+  },
+
+  close() {
+    this.pause();
+    $("#focus").hidden = true;
+    document.body.classList.remove("no-scroll");
+    document.title = "Daily Discipline";
+  },
+
+  // Fill the "Working on" list with open priorities and unfinished routine tasks
+  fillTasks() {
+    const day = Model.today();
+    const priorities = day.planner.priorities.filter((p) => p.text.trim() && !p.done).map((p) => p.text.trim());
+    const open = [];
+    ROUTINE.forEach((sec) => sec.tasks.forEach((t) => { if (!day.tasks[t.id]) open.push(t.text); }));
+    const options = (list) => list.map((t) => `<option>${esc(t)}</option>`).join("");
+
+    let html = `<option value="">Free focus</option>`;
+    if (priorities.length) html += `<optgroup label="Top priorities">${options(priorities)}</optgroup>`;
+    if (open.length) html += `<optgroup label="Routine tasks left">${options(open)}</optgroup>`;
+    $("#focusTask").innerHTML = html;
+    if (priorities.length) $("#focusTask").selectedIndex = 1;
+  },
+
+  setMinutes(m) {
+    if (this.running) return;
+    this.minutes = m;
+    this.remaining = m * 60;
+    $("#focusNote").textContent = "";
+    this.draw();
+  },
+
+  toggle() { this.running ? this.pause() : this.start(); },
+
+  start() {
+    if (this.running) return;
+    if (this.remaining <= 0) this.remaining = this.minutes * 60;
+    this.endAt = Date.now() + this.remaining * 1000;
+    this.running = true;
+    $("#focusNote").textContent = "";
+    this.timerId = setInterval(() => this.tick(), 250);
+    this.draw();
+  },
+
+  pause() {
+    if (!this.running) return;
+    this.tick();
+    clearInterval(this.timerId);
+    this.running = false;
+    this.draw();
+  },
+
+  reset() {
+    clearInterval(this.timerId);
+    this.running = false;
+    this.remaining = this.minutes * 60;
+    $("#focusNote").textContent = "";
+    this.draw();
+  },
+
+  tick() {
+    this.remaining = Math.max(0, Math.round((this.endAt - Date.now()) / 1000));
+    if (this.remaining === 0) this.finish();
+    this.draw();
+  },
+
+  finish() {
+    clearInterval(this.timerId);
+    this.running = false;
+    Model.today().focusSessions += 1;
+    Model.save();
+    $("#focusNote").textContent = "Session complete. Take a short break, then choose your next task.";
+    this.beep();
+  },
+
+  beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 660;
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      osc.start(); osc.stop(ctx.currentTime + 0.5);
+    } catch (err) { /* sound is optional */ }
+  },
+
+  // Update everything shown on the focus screen
+  draw() {
+    const m = String(Math.floor(this.remaining / 60)).padStart(2, "0");
+    const s = String(this.remaining % 60).padStart(2, "0");
+    const total = this.minutes * 60;
+    $("#focusTime").textContent = `${m}:${s}`;
+    $("#focusBar").style.width = total ? `${((total - this.remaining) / total) * 100}%` : "0%";
+    $("#focusToggle").textContent = this.running ? "Pause" : (this.remaining < total && this.remaining > 0 ? "Resume" : "Start focus session");
+    document.querySelectorAll("#focusPresets .seg-btn").forEach((btn) => {
+      btn.classList.toggle("is-active", Number(btn.dataset.min) === this.minutes);
+      btn.disabled = this.running;
+    });
+    if (this.running) document.title = `${m}:${s} - Focus`;
+  }
+};
+
+
+/* ==========================================================
+   10. APP - start-up and redrawing the page
+   ========================================================== */
+const App = {
+  view: "dashboard",
+  dayKey: "",
+  quoteIndex: 0,
+  quoteTimer: null,
+
+  async init() {
+    Store.detect();
+    await Model.init();
+    this.dayKey = Dates.key(new Date());
+    this.quoteIndex = Math.floor((Date.now() / 86400000)) % QUOTES.length;
+
+    this.buildNav();
+    this.bindEvents();
+    this.view = this.readHash();
+    this.render(true);
+    this.updateStorageNotice();
+
+    // Save once more when the page is closed or hidden
+    window.addEventListener("pagehide", () => Model.save());
+    document.addEventListener("visibilitychange", () => { if (document.hidden) Model.save(); });
+
+    setInterval(() => this.tick(), 10000);
+  },
+
+  // Shows the red warning bar only when data cannot be saved
+  updateStorageNotice() {
+    const notice = $("#storageNotice");
+    if (notice) notice.hidden = Store.mode !== "memory";
+  },
+
+  // Switch to another page
+  go(id) {
+    this.view = id;
+    try { history.replaceState(null, "", "#" + id); } catch (err) { /* ignored in sandboxed previews */ }
+    this.render(true);
+    window.scrollTo(0, 0);
+  },
+
+  readHash() {
+    const id = location.hash.replace("#", "");
+    return VIEWS.some((v) => v.id === id) ? id : "dashboard";
+  },
+
+  buildNav() {
+    $("#sideNav").innerHTML = VIEWS.map((v) =>
+      `<a class="nav-link" href="#${v.id}" data-view="${v.id}">${icon(v.icon)}<span>${v.label}</span></a>`).join("");
+    $("#bottomNav").innerHTML = VIEWS.map((v) =>
+      `<a class="bnav-link" href="#${v.id}" data-view="${v.id}">${icon(v.icon)}<span>${v.short}</span></a>`).join("");
+  },
+
+  bindEvents() {
+    // Clicks on anything with data-action (buttons)
+    document.addEventListener("click", (e) => {
+      // Page links (sidebar, bottom bar, "Open"/"Edit" links): switch page in JS,
+      // so navigation also works where #hash links are blocked (previews, in-app viewers)
+      const link = e.target.closest('a[href^="#"]');
+      if (link) {
+        const id = link.getAttribute("href").slice(1);
+        if (VIEWS.some((v) => v.id === id)) {
+          e.preventDefault();
+          this.go(id);
+          return;
+        }
+      }
+
+      const el = e.target.closest("[data-action]");
+      if (el && !el.matches("input, select")) runAction(el);
+    });
+
+    // Checkboxes and dropdowns with data-action
+    document.addEventListener("change", (e) => {
+      const el = e.target;
+      if (el.id === "importFile") return Actions.readImport(el);
+      if (el.dataset.action && el.matches("input, select")) runAction(el);
+      // Show the clamped value in number settings after you finish typing
+      if (el.dataset.num !== undefined && el.dataset.bind) {
+        const parts = el.dataset.bind.split(".");
+        el.value = Model.data[parts[0]][parts[1]];
+      }
+    });
+
+    // Typing in any box with data-bind
+    document.addEventListener("input", (e) => {
+      if (e.target.dataset && e.target.dataset.bind) Binder.set(e.target);
+    });
+
+    // Press Enter in a box with data-enter to run that action
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.dataset && e.target.dataset.enter) {
+        e.preventDefault();
+        runAction({ dataset: { action: e.target.dataset.enter } });
+      }
+      if (e.key === "Escape" && !$("#focus").hidden) Focus.close();
+    });
+
+    window.addEventListener("hashchange", () => {
+      this.view = this.readHash();
+      this.render(true);
+      window.scrollTo(0, 0);
+    });
+  },
+
+  // Draw the current page. `animate` plays the entrance motion.
+  render(animate = false) {
+    const focusedId = document.activeElement && document.activeElement.id;
+    const main = $("#view");
+
+    main.innerHTML = Views[this.view]();
+    main.classList.remove("enter");
+    if (animate) { void main.offsetWidth; main.classList.add("enter"); }
+
+    document.querySelectorAll("[data-view]").forEach((link) => {
+      const active = link.dataset.view === this.view;
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
+    });
+    document.title = (VIEWS.find((v) => v.id === this.view).label) + " - Daily Discipline";
+
+    this.startQuotes();
+
+    // Keep keyboard focus on the same control after a redraw
+    if (focusedId) {
+      const same = document.getElementById(focusedId);
+      if (same) same.focus({ preventScroll: true });
+    }
+  },
+
+  // Quotes rotate every 12 seconds while the dashboard is open
+  startQuotes() {
+    clearInterval(this.quoteTimer);
+    if (this.view === "dashboard") {
+      this.quoteTimer = setInterval(() => this.showQuote(this.quoteIndex + 1), 12000);
+    }
+  },
+  showQuote(index) {
+    this.quoteIndex = index % QUOTES.length;
+    const el = $("#quoteText");
+    if (!el) return;
+    el.textContent = `\u201C${QUOTES[this.quoteIndex]}\u201D`;
+    el.classList.remove("swap");
+    void el.offsetWidth;
+    el.classList.add("swap");
+  },
+
+  // Updates the clock and starts a fresh day at midnight
+  tick() {
+    const now = new Date();
+    const clock = $("#clock");
+    if (clock) clock.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    if (Dates.key(now) !== this.dayKey) {
+      this.dayKey = Dates.key(now);
+      this.render();
+    }
+  }
+};
+
+App.init().catch((err) => console.error("Could not start the app:", err));
+
+</script>
+</body>
+</html>
